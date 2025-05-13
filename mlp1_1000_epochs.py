@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
 # Step 1: Load data
 df = pd.read_csv('./used_cars.csv')
 df.head()
@@ -106,8 +108,9 @@ def train_model(model, X_train, y_train, X_val, y_val, epochs=100):
         if epoch % 10 == 0 or epoch == epochs - 1:
             print(f"Epoch {epoch}: Train Loss = {loss.item():.4f}, Val Loss = {val_loss.item():.4f}, "
                   f"Train MAE = {train_mae:.2f}, Val MAE = {val_mae:.2f}")
-
-    return train_losses, val_losses, train_mae_list, val_mae_list
+    best_val_mae = min(val_mae_list)
+    print(f"Best Val MAE = ${best_val_mae:,.2f}")
+    return train_losses, val_losses, train_mae_list, val_mae_list, best_val_mae
 
 # Initialize model
 input_size = X_train_tensor.shape[1]
@@ -115,7 +118,7 @@ model = CarPriceMLP(input_size)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Run training
-train_losses, val_losses, train_mae_list, val_mae_list = train_model(
+train_losses, val_losses, train_mae_list, val_mae_list, best_val_mae = train_model(
     model, X_train_tensor, y_train_tensor, X_val_tensor, y_val_tensor, epochs=1000
 )
 # Plotting
@@ -139,5 +142,28 @@ plt.xlabel("Epoch")
 plt.ylabel("Mean Absolute Error")
 plt.legend()
 
+plt.tight_layout()
+plt.show()
+
+# Predicted Price vs Actual Price Plot
+model.eval()
+with torch.no_grad():
+    predictions = model(X_test_tensor).squeeze().numpy()
+    actuals = y_test_tensor.squeeze().numpy()
+
+plt.figure(figsize=(7, 6))
+plt.scatter(actuals, predictions, alpha=0.5)
+plt.plot([actuals.min(), actuals.max()], [actuals.min(), actuals.max()], 'r--')
+plt.xlabel("Actual Price")
+plt.ylabel("Predicted Price")
+plt.title(f"Predicted vs Actual Car Prices Test Set (MAE = ${best_val_mae:,.2f})")
+
+def format_func(x, _): return f'{int(x):,}'
+plt.xticks(np.arange(0, 3100000, 500000))
+plt.yticks(np.arange(0, 3100000, 500000))
+plt.gca().xaxis.set_major_formatter(FuncFormatter(format_func))
+plt.gca().yaxis.set_major_formatter(FuncFormatter(format_func))
+
+plt.grid(True)
 plt.tight_layout()
 plt.show()
