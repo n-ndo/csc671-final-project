@@ -159,3 +159,31 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+# Predicted vs Actual plot
+model.eval()
+with torch.no_grad():
+    predictions = model(X_test_tensor).squeeze().numpy()
+    actuals = y_test_tensor.squeeze().numpy()
+
+plt.figure(figsize=(7, 6))
+plt.scatter(actuals, predictions, alpha=0.5)
+plt.plot([actuals.min(), actuals.max()], [actuals.min(), actuals.max()], 'r--')
+plt.xlabel("Actual Price")
+plt.ylabel("Predicted Price")
+plt.title("Predicted vs Actual Car Prices")
+
+
+from matplotlib.ticker import FuncFormatter
+def format_func(x, _):
+    return f'{int(x):,}'
+
+plt.xticks(np.arange(0, 3100000, 500000))
+plt.yticks(np.arange(0, 3100000, 500000))
+plt.gca().xaxis.set_major_formatter(FuncFormatter(format_func))
+plt.gca().yaxis.set_major_formatter(FuncFormatter(format_func))
+
+
+plt.grid(True)
+plt.tight_layout()
+plt.show()
