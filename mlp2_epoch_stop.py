@@ -11,6 +11,7 @@ import torch.optim as optim
 from sklearn.metrics import mean_absolute_error
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 # Load and preprocess data
 df = pd.read_csv('./used_cars.csv')
@@ -116,8 +117,8 @@ def train_model(model, train_loader, X_val, y_val, epochs=1000, patience=50):
         val_mae_list.append(val_mae)
 
         if epoch % 10 == 0 or epoch == epochs - 1:
-            print(f"Epoch {epoch}: Train Loss = {train_loss:.2f}, Val Loss = {val_loss.item():.2f}, "
-                  f"Train MAE = {train_mae:.2f}, Val MAE = {val_mae:.2f}")
+          print(f"Epoch {epoch}: Train Loss = {train_loss:.2f}, Val Loss = {val_loss.item():.2f}, "
+                f"Train MAE = {train_mae:.2f}, Val MAE = {val_mae:.2f}")
 
         # Early stopping
         if val_mae < best_val_mae:
@@ -131,10 +132,10 @@ def train_model(model, train_loader, X_val, y_val, epochs=1000, patience=50):
                 model.load_state_dict(best_model_state)
                 break
 
-    return train_losses, val_losses, train_mae_list, val_mae_list
+    return train_losses, val_losses, train_mae_list, val_mae_list, best_val_mae
 
 # Train
-train_losses, val_losses, train_mae_list, val_mae_list = train_model(
+train_losses, val_losses, train_mae_list, val_mae_list, best_val_mae = train_model(
     model, train_loader, X_val_tensor, y_val_tensor, epochs=1000, patience=50
 )
 
@@ -160,7 +161,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-# Predicted vs Actual plot
+# Predicted Price vs Actual Price Plot
 model.eval()
 with torch.no_grad():
     predictions = model(X_test_tensor).squeeze().numpy()
@@ -171,18 +172,13 @@ plt.scatter(actuals, predictions, alpha=0.5)
 plt.plot([actuals.min(), actuals.max()], [actuals.min(), actuals.max()], 'r--')
 plt.xlabel("Actual Price")
 plt.ylabel("Predicted Price")
-plt.title("Predicted vs Actual Car Prices")
+plt.title(f"Predicted vs Actual Car Prices Test Set (MAE = ${best_val_mae:,.2f})")
 
-
-from matplotlib.ticker import FuncFormatter
-def format_func(x, _):
-    return f'{int(x):,}'
-
+def format_func(x, _): return f'{int(x):,}'
 plt.xticks(np.arange(0, 3100000, 500000))
 plt.yticks(np.arange(0, 3100000, 500000))
 plt.gca().xaxis.set_major_formatter(FuncFormatter(format_func))
 plt.gca().yaxis.set_major_formatter(FuncFormatter(format_func))
-
 
 plt.grid(True)
 plt.tight_layout()
