@@ -125,7 +125,8 @@ def train_model(model, train_loader, X_val, y_val, epochs=1000, patience=50):
         val_mae_list.append(val_mae)
 
         if epoch % 10 == 0 or epoch == epochs - 1:
-            print(f"Epoch {epoch}: Train MAE = {train_mae:.2f}, Val MAE = {val_mae:.2f}")
+            print(f"Epoch {epoch}: Train Loss = {train_loss:.2f}, Val Loss = {val_loss.item():.2f}, "
+                  f"Train MAE = {train_mae:.2f}, Val MAE = {val_mae:.2f}")
 
         # Early stopping
         if val_mae < best_val_mae:
