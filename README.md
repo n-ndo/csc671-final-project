@@ -1,5 +1,5 @@
 # csc671-final-project
-Team 03: Shrey Rakesh Kevadia, Fernando Malca Luque, Anthony Mingus, William Widjaja
+Team 03: Shrey Rakesh Kevadia, Fernando Abel Malca Luque, Anthony Mingus, William Widjaja
 
 Dataset Used: Used Car Price Prediction 
 
