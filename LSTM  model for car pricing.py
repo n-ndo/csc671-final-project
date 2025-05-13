@@ -11,7 +11,7 @@ import torch.optim as optim
 from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 # Step 1: Load data
-df = pd.read_csv('../used_cars.csv')
+df = pd.read_csv('./used_cars.csv')
 df.head()
 # Clean 'price' and 'milage' columns
 df['price'] = df['price'].replace('[\$,]', '', regex=True).astype(float)
